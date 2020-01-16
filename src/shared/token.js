@@ -1,0 +1,1 @@
+module.exports = process.env.CHAT_TOKENS.split(' ');
