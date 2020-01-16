@@ -76,7 +76,7 @@ async function leaveGame(participant) {
     else {
         let game = await getGame(participant);
         await data.destroy({
-            table: 'game',
+            table: 'story',
             key: record.storyKey
         });
         await data.destroy({
