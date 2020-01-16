@@ -6,6 +6,7 @@ create-dfn
 @http
 post /sms
 get /data
+get /
 
 @tables
 data
