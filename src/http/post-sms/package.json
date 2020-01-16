@@ -2,6 +2,7 @@
   "name": "begin-app-post-sms",
   "dependencies": {
     "@architect/functions": "latest",
-    "@begin/data": "latest"
+    "@begin/data": "latest",
+    "twilio": "^3.39.2"
   }
 }
