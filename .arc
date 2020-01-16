@@ -5,6 +5,7 @@ create-dfn
 
 @http
 get /
+post /sms
 
 @tables
 data
