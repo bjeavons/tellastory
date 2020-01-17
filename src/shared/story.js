@@ -1,103 +1,103 @@
 let data = require('@begin/data');
 
 async function pendingGame(storyKey) {
-    let response = await data.get({ table: 'pending', key: storyKey }); 
-    return response !== null ? response.participant : null;
+    let response = await data.get({ table: 'game', key: storyKey }); 
+    return response !== null ? response.creator : null;
 }
 
-async function startGame(participant, storyKey) {
-    console.log('Pending game on', storyKey, ', awaiting additional participants');
+async function setupGame(creator, storyKey) {
+    console.log('Set up game for', storyKey, ', awaiting additional players');
     await data.set({
-        table: 'pending',
+        table: 'game',
         key: storyKey,
-        participant
+        creator: creator,
+        players: [creator],
+        story: null,
+        started: false,
+        created: Date.now(),
+        updated: Date.now()
     });
     await data.set({
-        table: 'participant',
-        key: participant,
+        table: 'player',
+        key: creator,
+        created: Date.now(),
         storyKey
     });
 }
 
-async function joinGame(participant, storyKey) {
-    // If there's a pending story then join it else start a pending story.
-    let pendingStory = await data.get({ table: 'pending', key: storyKey });
-    if (pendingStory === null) {
-        console.log('No pending game on', storyKey);
+async function joinGame(player, storyKey) {
+    // If there's a pending game join it.
+    let game = await data.get({ table: 'game', key: storyKey });
+    if (game === null) {
+        console.log('No pending game for', storyKey);
         throw new Error();
     }
     else {
-        // Upgrade from pending to full story and remove pending.
-        console.log('Starting game on', storyKey);
-        let game = {
-            participant_1: pendingStory.participant,
-            participant_2: participant,
-            story: null,
-            created: Date.now()
-        };
+        // Join game.
+        console.log('Joining player', player,' to game', storyKey);
+        game.players.push(player);
+        game.updated = Date.now();
         await data.set({
-            table: 'story',
+            table: 'game',
             key: storyKey,
             ...game
         });
         await data.set({
-            table: 'participant',
-            key: participant,
+            table: 'player',
+            key: player,
+            created: Date.now(),
             storyKey
         });
-        await data.destroy({
-            table: 'pending',
-            key: storyKey
-        })
     }
 }
 
-async function getGame(participant) {
-    let record = await data.get({ table: 'participant', key: participant });
+async function getGame(player) {
+    let record = await data.get({ table: 'player', key: player });
     if (record === null) {
-        console.log('Not a game participant', participant);
+        console.log('Not a game player', player);
         return false;
     }
-    let story = await data.get({ table: 'story', key: record.storyKey });
-    if (story === null) {
-        console.log('No active game on', record.storyKey);
+    let game = await data.get({ table: 'game', key: record.storyKey });
+    if (game === null) {
+        console.log('No active game for', record.storyKey);
         return false;
     }
-    console.log('Matched game with participants', story.participant_1, story.participant_2);
-    return story;
+    console.log('Found game with players', game.players.join(" "));
+    return game;
 }
 
-async function leaveGame(participant) {
-    let record = await data.get({ table: 'participant', key: participant });
+async function leaveGame(player) {
+    let record = await data.get({ table: 'player', key: player });
     if (record === null) {
-        console.log('Not a game participant', participant);
+        console.log('Not a game player', player);
         return false;
     }
     else {
-        let game = await getGame(participant);
-        await data.destroy({
-            table: 'story',
-            key: record.storyKey
+        let game = await getGame(player);
+        game.players = game.players.filter(function (e) {
+            return e != this;
+        }, player);
+        game.updated = Date.now();
+
+        await data.set({
+            table: 'game',
+            key: game.key,
+            ...game
         });
         await data.destroy({
-            table: 'participant',
-            key: game.participant_1
+            table: 'player',
+            key: player
         });
-        await data.destroy({
-            table: 'participant',
-            key: game.participant_2
-        });
+        console.log('Game', game.key, 'now with players', game.players);
         return true;
     }
 }
 
 function getNextPlayer(game, sender) {
-    if (game.participant_1 === sender) {
-        return game.participant_2;
-    }
-    else {
-        return game.participant_1;
-    }
+    let eligible = game.players.filter(function (e) {
+        return e != this;
+    }, sender);
+    return eligible[Math.floor(Math.random() * Math.floor(eligible.length))];
 }
 
 function getStory(game) {
@@ -107,15 +107,15 @@ function getStory(game) {
 async function updateStory(game, story) {
     game.story = story;
     await data.set({
-        table: 'story',
-        key: game.storyKey,
+        table: 'game',
+        key: game.key,
         ...game
     });
 }
 
 module.exports = {
     pending: pendingGame,
-    start: startGame,
+    setup: setupGame,
     join: joinGame,
     get: getGame,
     leave: leaveGame,

@@ -2,7 +2,7 @@ const storytime = require('@architect/shared/story');
 const tokens = require('@architect/shared/token');
 const twilio = require('@architect/shared/twilio');
 
-async function game(payload) {
+async function gameplay(payload) {
     const {sender, message} = twilio.parseMessage(payload);
     console.log('Message:', message, 'From:', sender);
 
@@ -18,15 +18,20 @@ async function game(payload) {
     else {
         const game = await storytime.get(sender);
         if (!game) {
-            // If no pending story game then start one.
+            // If no pending game then start one.
             const pendingGame = await storytime.pending(message.toLowerCase());
             if (tokens.includes(message.toLowerCase()) && pendingGame === null) {
-                await storytime.start(sender, message.toLowerCase());
+                await storytime.setup(sender, message.toLowerCase());
                 response.body = twilio.twiml("Got ya, waiting for at least one more to join. Text 'help' for help or 'stop' to leave the game. Msg&data rates may apply.");
             }
+            /**
+             * @todo Allow 2+ players
+             *  ? by delegating game start to creator?
+             *      optionally on token start?
+             */
             else if (tokens.includes(message.toLowerCase()) && pendingGame !== sender) {
                 await storytime.join(sender, message.toLowerCase());
-                response.body = twilio.twiml("You've joined the story game! Text 'help' for help or 'stop' to leave. Msg&data rates may apply.");
+                response.body = twilio.twiml("You've joined the story! Text 'help' for help or 'stop' to leave. Msg&data rates may apply.");
             }
             else if (pendingGame === sender) {
                 console.log("Cannot rejoin game");
@@ -38,10 +43,20 @@ async function game(payload) {
             }
         }
         else if (message.toLowerCase() === "stop") {
+            /**
+             * @todo remove this player but don't end the game
+             *  ? unless <3 players
+             *      notify game creator when player leaves
+             */
             await storytime.leave(sender);
             response.body = twilio.twiml("You've left the story. 👋");
         }
         else if (game) {
+            /**
+             * @todo sentences!
+             *  ? lowercase so long as not propernoun
+             *  ? handle sentence completions - allow for multi sentence stories
+             */
             let story = storytime.getStory(game);
             if (story !== null ) {
                 story = story + " " + message;
@@ -73,4 +88,4 @@ async function game(payload) {
     return response;
 }
 
-module.exports = game;
+module.exports = gameplay;
