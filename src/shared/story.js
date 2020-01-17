@@ -1,8 +1,8 @@
 let data = require('@begin/data');
 
 async function pendingGame(storyKey) {
-    let response = await data.get({ table: 'game', key: storyKey }); 
-    return response !== null ? response.creator : null;
+    let game = await data.get({ table: 'game', key: storyKey });
+    return game !== null ? game : null;
 }
 
 async function setupGame(creator, storyKey) {
@@ -48,7 +48,21 @@ async function joinGame(player, storyKey) {
             created: Date.now(),
             storyKey
         });
+        return game;
     }
+}
+
+async function startGame(game) {
+    game.started = true;
+    game.updated = Date.now();
+    /**
+     * @todo move story to own table
+     */
+    await data.set({
+        table: 'game',
+        key: game.key,
+        ...game
+    });
 }
 
 async function getGame(player) {
@@ -72,25 +86,65 @@ async function leaveGame(player) {
         console.log('Not a game player', player);
         return false;
     }
-    else {
-        let game = await getGame(player);
-        game.players = game.players.filter(function (e) {
-            return e != this;
-        }, player);
-        game.updated = Date.now();
 
-        await data.set({
-            table: 'game',
-            key: game.key,
-            ...game
-        });
+    let game = await getGame(player);
+    game.players = game.players.filter(function (e) {
+        return e != this;
+    }, player);
+    game.updated = Date.now();
+
+    await data.set({
+        table: 'game',
+        key: game.key,
+        ...game
+    });
+    await data.destroy({
+        table: 'player',
+        key: player
+    });
+    console.log('Game', game.key, 'now with players', game.players);
+    return game;
+}
+
+async function endGame(player) {
+    let record = await data.get({ table: 'player', key: player });
+    if (record === null) {
+        console.log('Not a game player', player);
+        return false;
+    }
+    let game = await getGame(player);
+    if (game.creator !== player) {
+        console.log('Not game creator', player);
+        return false;
+    }
+
+    game.players.map(async function (p) {
         await data.destroy({
             table: 'player',
-            key: player
+            key: p
         });
-        console.log('Game', game.key, 'now with players', game.players);
-        return true;
-    }
+    });
+    await data.destroy({
+        table: 'game',
+        key: game.key
+    });
+    /**
+     * @todo archive the story?
+     */
+    console.log('Game', game.key, 'and all players removed');
+    return true;
+}
+
+function getCreator(game) {
+    return game.creator;
+}
+
+function hasStarted(game) {
+    return game.started;
+}
+
+function getPlayerCount(game) {
+    return game.players.length;
 }
 
 function getNextPlayer(game, sender) {
@@ -118,7 +172,12 @@ module.exports = {
     setup: setupGame,
     join: joinGame,
     get: getGame,
+    start: startGame,
     leave: leaveGame,
+    end: endGame,
+    getCreator: getCreator,
+    hasStarted: hasStarted,
+    getPlayerCount, getPlayerCount,
     getNextPlayer: getNextPlayer,
     getStory: getStory,
     updateStory: updateStory

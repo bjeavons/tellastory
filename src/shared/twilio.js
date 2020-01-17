@@ -23,12 +23,23 @@ function twiml(body) {
 }
 
 async function sendMessage(message, to) {
-    const client = new twilio.Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    return await client.messages.create({
-        body: message,
-        from: process.env.TWILIO_SENDER,
-        to: to
-    });
+    if (process.env.NODE_ENV === 'production') {
+        try {
+            const client = new twilio.Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+            const relayedMessage = await client.messages.create({
+                body: message,
+                from: process.env.TWILIO_SENDER,
+                to: to
+            });
+            console.log('Relayed message SID', relayedMessage.sid);
+        }
+        catch (e) {
+            console.log('ERROR:', e);
+        }
+    }
+    else {
+        console.log("Would relay:", message);
+    }
 }
 
 module.exports = {
