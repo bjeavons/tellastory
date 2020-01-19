@@ -19,6 +19,7 @@ class Command {
                 this.start = true;
                 break;
                 
+            case 'end':
             case 'stop':
                 this.stop = true;
                 break;
