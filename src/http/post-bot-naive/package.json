@@ -1,0 +1,7 @@
+{
+  "name": "begin-app-post-bot-naive",
+  "dependencies": {
+    "@architect/functions": "latest",
+    "@begin/data": "latest"
+  }
+}
