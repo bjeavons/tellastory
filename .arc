@@ -8,6 +8,7 @@ post /sms
 get /data
 get /
 post /bot/naive
+post /story
 
 @tables
 data
