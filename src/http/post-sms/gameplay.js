@@ -70,7 +70,7 @@ async function gameplay(payload) {
             console.log("Starting game!");
             await storytime.start(game);
             let receiver = storytime.getNextPlayer(game, sender);
-            await twilio.sendMessage("🤖 And so it begins! Text back one or two words to get the story started.", receiver);
+            await twilio.sendMessage("🤖 And so it begins! Get the story started, text back one or two words to begin a sentence.", receiver);
             response.body = twilio.twiml("🤖 The first player has been asked to start the story!");
         }
         else if (!storytime.hasStarted(game) && storytime.getCreator(game) === sender) {
