@@ -1,15 +1,20 @@
-// Enable secure sessions, express-style middleware, and more:
-// https://docs.begin.com/en/functions/http/
-//
-// let begin = require('@architect/functions')
+let arc = require('@architect/functions');
 
 exports.handler = async function http(req) {
-  console.log(req)
+  let body = arc.http.helpers.bodyParser(req);
+  console.log(body);
+  // @todo validate req auth
+
+  if (!body.hasOwnProperty('text') || !body.hasOwnProperty('player')) {
+    return {
+      statusCode: 400,
+      body: ''
+    }
+  }
+  // @todo play game
+  console.log('Got', body.text);
   return {
-    status: 302,
-    headers: {
-      'cache-control': 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0'
-    },
-    location: '/'
+    statusCode: 200,
+    body: ''
   }
 }
