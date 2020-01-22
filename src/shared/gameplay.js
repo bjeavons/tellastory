@@ -1,11 +1,10 @@
-const gamecommand = require('./gamecommand.js');
+const gamecommand = require('@architect/shared/gamecommand');
 const tokens = require('@architect/shared/token');
 const storytime = require('@architect/shared/story');
 const twilio = require('@architect/shared/twilio');
 
-async function gameplay(payload) {
-    const {sender, message} = twilio.parseMessage(payload);
-    console.log('Message:', message, 'From:', sender);
+async function gameplay(sender, message) {
+
     const command = new gamecommand.parse(message);
 
     var response = {

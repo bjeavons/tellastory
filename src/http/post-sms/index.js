@@ -1,6 +1,6 @@
 let arc = require('@architect/functions');
 let twilio = require('@architect/shared/twilio');
-let game = require('./gameplay.js');
+let game = require('@architect/shared/gameplay');
 
 exports.handler = async function http(req) {
   if ((process.env.NODE_ENV == 'production' || process.env.NODE_ENV == 'staging') && !twilio.validateRequest(req)) {
@@ -11,8 +11,10 @@ exports.handler = async function http(req) {
   }
 
   console.log(Date());
+  const {sender, message} = twilio.parseMessage(arc.http.helpers.bodyParser(req));
+  console.log('Message:', message, 'From:', sender);
   try {
-    response = await game(arc.http.helpers.bodyParser(req));
+    response = await game(sender, message);
     return {
       statusCode: 200,
       headers: response.headers,
