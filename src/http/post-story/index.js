@@ -5,14 +5,14 @@ exports.handler = async function http(req) {
   console.log(body);
   // @todo validate req auth
 
-  if (!body.hasOwnProperty('text') || !body.hasOwnProperty('player')) {
+  if (!body.hasOwnProperty('text') || !body.hasOwnProperty('player_id')) {
     return {
       statusCode: 400,
       body: ''
     }
   }
   // @todo play game
-  console.log('Got', body.text);
+  console.log('Gameplay from web got:', body.text);
   return {
     statusCode: 200,
     body: ''
