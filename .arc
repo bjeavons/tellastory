@@ -7,6 +7,7 @@ create-dfn
 post /sms
 get /data
 get /
+post /bot/naive
 
 @tables
 data
