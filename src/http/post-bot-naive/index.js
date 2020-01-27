@@ -1,10 +1,19 @@
 let arc = require('@architect/functions');
 const rp = require('request-promise-native');
+const auth = require('@architect/shared/auth');
 
 exports.handler = async function http(req) {
+  try {
+    auth.verify(req);
+  }
+  catch (err) {
+    return {
+      statusCode: 401,
+      body: err.message
+    };
+  }
+
   let body = arc.http.helpers.bodyParser(req);
-  console.log(body);
-  // @todo validate req auth
 
   if (!body.hasOwnProperty('story') || !body.hasOwnProperty('player_id')) {
     return {
@@ -17,17 +26,15 @@ exports.handler = async function http(req) {
   await rp({
     url: process.env.APP_URL + '/story',
     method: 'POST',
+    auth: { bearer: process.env.APP_STORY_JWT },
     json: true,
     body: {
       text: text,
       player_id: body.player_id
     }
   })
-  .then(function (body) {
-    console.log('post text resp:', body);
-  })
   .catch(function (err) {
-    console.log('post text err:', err);
+    console.log('Story post error:', err);
   });
   return {
     statusCode: 200,

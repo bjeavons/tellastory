@@ -1,5 +1,5 @@
 const gamecommand = require('@architect/shared/gamecommand');
-const tokens = require('@architect/shared/token');
+const tokens = require('@architect/shared/gametoken');
 const storytime = require('@architect/shared/story');
 const twilio = require('@architect/shared/twilio');
 

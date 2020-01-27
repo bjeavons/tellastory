@@ -2,6 +2,7 @@
   "name": "begin-app-get-data",
   "dependencies": {
     "@architect/functions": "latest",
-    "@begin/data": "latest"
+    "@begin/data": "latest",
+    "jsonwebtoken": "^8.5.1"
   }
 }
