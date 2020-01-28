@@ -17,8 +17,10 @@ exports.handler = async function http(req) {
     response = await game(sender, message);
     return {
       statusCode: 200,
-      headers: response.headers,
-      body: 'body' in response ? response.body.toString() : ''
+      headers: {
+        'content-type': 'text/xml'
+      },
+      body: 'body' in response ? twilio.twiml(response.body).toString() : ''
     }
   }
   catch (e) {
