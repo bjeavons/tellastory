@@ -12,15 +12,22 @@ async function gameplay(sender, command, message) {
         game = await storytime.pending(message.toLowerCase());
 
         if (command.help) {
-            response.body = "🤖 This is storytime, text an access keyword to join a story in progress or start one. Text /intro to learn more. Text /stop to leave an in progress game or to end one you created. FYI msg&data rates may apply while playing";
+            response.body = "🤖 This is Storytime! Text an access keyword to join a story in progress or to start one. Text /intro to learn more. FYI msg&data rates may apply while playing";
         }
         else if (command.intro) {
-            response.body = "🤖 Storytime is a SMS-based storytelling game. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to!";
+            response.body = "🤖 Storytime is a SMS-based storytelling game. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /stop to leave an in progress game or to end one you created. Text /demo to try a short demo game.";
+        }
+        else if (command.demo) {
+            // Start demo game.
+            let demo = 'Once upon a time';
+            await storytime.demo(sender, demo);
+            await player.message("🤖 OK, let's tell a story, you and I! I'll text you the start of a story and you text back to add on. Note, this demo will expire in 24 hours. Get ready!", sender);
+            response.body = demo;
         }
         else if (isToken && game === null) {
             // If no pending game and message is a token then start one.
             await storytime.setup(sender, message.toLowerCase());
-            response.body = "🤖 Welcome to storytime! Once at least one more person joins you'll be collaboratively telling a story over SMS! Learn more about what's going to happen, text back /intro (with slash).";
+            response.body = "🤖 Welcome to Storytime! Once at least one more person joins you'll be collaboratively telling a story over SMS! Learn more about what's going to happen, text back /intro (with slash).";
         }
         else if (isToken && storytime.getCreator(game) !== sender) {
             game = await storytime.join(sender, message.toLowerCase());

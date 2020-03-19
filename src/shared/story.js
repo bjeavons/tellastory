@@ -5,6 +5,18 @@ async function pendingGame(storyKey) {
     return game !== null ? game : null;
 }
 
+async function startDemo(creator, story) {
+    console.log('Start demo game for', creator);
+    await data.set({
+        table: 'demo',
+        key: creator,
+        ttl: Date.now() + (60*60*24),
+        story: story,
+        created: Date.now(),
+        updated: Date.now()
+    });
+}
+
 async function setupGame(creator, storyKey) {
     console.log('Set up game for', storyKey, ', awaiting additional players');
     await data.set({
@@ -169,6 +181,7 @@ async function updateStory(game, story) {
 
 module.exports = {
     pending: pendingGame,
+    demo: startDemo,
     setup: setupGame,
     join: joinGame,
     get: getGame,

@@ -21,7 +21,6 @@ exports.handler = async function http(req) {
   if (command.admin && process.env.SUPER_ADMIN === sender) {
     // Super admin command.
     try {
-      console.log(command.message);
       response = admin(sender, command.message);
       return {
         statusCode: 200,

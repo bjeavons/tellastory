@@ -5,6 +5,7 @@ class Command {
         this.start = false;
         this.stop = false;
         this.intro = false;
+        this.demo = false;
         this.admin = false;
         this.message = '';
         if (!message[0] === '/') {
@@ -27,6 +28,10 @@ class Command {
 
             case 'intro':
                 this.intro = true;
+                break;
+
+            case 'demo':
+                this.demo = true;
                 break;
 
             case 'admin':
