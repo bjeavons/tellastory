@@ -5,12 +5,13 @@ class Command {
         this.start = false;
         this.stop = false;
         this.intro = false;
+        this.admin = false;
         this.message = '';
         if (!message[0] === '/') {
             return;
         }
         this.message = message.toLowerCase().trim().slice(1);
-        switch (this.message) {
+        switch (this.message.split(' ')[0]) {
             case 'help':
                 this.help = true;
                 break;
@@ -26,6 +27,13 @@ class Command {
 
             case 'intro':
                 this.intro = true;
+                break;
+
+            case 'admin':
+                if (this.message.split(' ').length > 1) {
+                    this.admin = true;
+                    this.message = message.trim().split(' ')[1];
+                }
                 break;
         }
     }

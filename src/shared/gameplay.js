@@ -1,11 +1,8 @@
-const gamecommand = require('@architect/shared/gamecommand');
 const tokens = require('@architect/shared/gametoken');
 const storytime = require('@architect/shared/story');
 const player = require('@architect/shared/player');
 
-async function gameplay(sender, message) {
-
-    const command = new gamecommand.parse(message);
+async function gameplay(sender, command, message) {
 
     var response = {};
 
