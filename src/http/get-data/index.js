@@ -12,6 +12,9 @@ exports.handler = async function http(req) {
     };
   }
 
+  let demos = await data.get({
+    table: 'demo'
+  });
   let games = await data.get({
     table: 'game'
   });
@@ -20,6 +23,7 @@ exports.handler = async function http(req) {
   });
 
   let body = {
+    demos,
     games,
     players
   };

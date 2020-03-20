@@ -36,8 +36,8 @@ async function intro(sender, channel, command, message) {
         // Start demo game.
         let player_id = await gameplayer.create(sender, channel, 'demo_game'); // @todo make const
         response = 'Once upon a time';
-        await storytime.demo(player_id, story);
-        await gameplayer.message("🤖 OK, let's tell a story, you and I! I'll text you the start of a story and you text back to add on. Get ready!", sender);
+        await storytime.demo(player_id, response);
+        await gameplayer.message("🤖 OK, let's tell a story, you and I! I'll text you the start of a story and you text back to add on. Get ready!", player_id);
     }
     else if (isToken) {
         let game = await storytime.pending(message.toLowerCase());
@@ -72,7 +72,27 @@ async function intro(sender, channel, command, message) {
 }
 
 async function demo(player, command, message) {
-    return response;
+    if (command.help) {
+        return "🤖 You're currently in a demo game. Text /stop to end it or it'll expire in about 24 hours.";
+    }
+    if (command.intro) {
+        return "🤖 Storytime is a SMS-based storytelling game. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for more info.";
+    }
+
+    const demoStory = await storytime.getDemoStory(player.key);
+    if (!demoStory) {
+        await gameplayer.deactivate(player.key);
+        return "🤖 Get a full game going!";
+    }
+    if (command.stop) {
+        await storytime.endDemo(player.key);
+        await gameplayer.deactivate(player.key);
+        return "🤖 I know, I'm not a great story-teller :/ Get some friends together with a game token and start telling a story! ";
+    }
+    // Update story and generate next word.
+    let story = demoStory + " " + message + " and";
+    await storytime.updateDemo(player.key, story);
+    return story;
 }
 
 async function pregame(player, command, message) {

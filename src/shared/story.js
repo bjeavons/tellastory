@@ -18,6 +18,30 @@ async function startDemo(player_id, story) {
     });
 }
 
+async function getDemoStory(player_id) {
+    let record = await data.get({ table: 'demo', key: player_id });
+    if (record === null) {
+        console.log('No demo game for', player_id);
+        return false;
+    }
+    return record.story;
+}
+
+async function endDemo(player_id) {
+    await data.destroy({ table: 'demo', key: player_id });
+}
+
+async function updateDemo(player_id, story) {
+    let demo = await data.get({ table: 'demo', key: player_id });
+    demo.story = story;
+    demo.updated = Date.now();
+    await data.set({
+        table: 'demo',
+        key: player_id,
+        ...demo
+    });
+}
+
 async function setupGame(player_id, storyKey) {
     console.log('Set up game for', storyKey, ', awaiting additional players');
     await data.set({
@@ -184,6 +208,7 @@ function getStory(game) {
 
 async function updateStory(game, story) {
     game.story = story;
+    game.updated = Date.now();
     await data.set({
         table: 'game',
         key: game.key,
@@ -194,6 +219,9 @@ async function updateStory(game, story) {
 module.exports = {
     pending: pendingGame,
     demo: startDemo,
+    getDemoStory: getDemoStory,
+    updateDemo: updateDemo,
+    endDemo: endDemo,
     setup: setupGame,
     join: joinGame,
     get: getGame,
