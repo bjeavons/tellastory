@@ -102,7 +102,7 @@ async function startGame(game) {
     });
     // Activate game for all players.
     game.players.map(async function (p) {
-        gameplayer.activate(p)
+        await gameplayer.activate(p)
     });
 }
 
