@@ -40,7 +40,7 @@ exports.handler = async function http(req) {
   }
 
   try {
-    response = await game(sender, command, message);
+    response = await game(sender, 'SMS', command, message);
     return {
       statusCode: 200,
       headers: {

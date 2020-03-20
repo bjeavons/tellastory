@@ -20,7 +20,8 @@ class Command {
             case 'start':
                 this.start = true;
                 break;
-                
+
+            case 'leave':
             case 'end':
             case 'stop':
                 this.stop = true;

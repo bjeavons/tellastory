@@ -1,15 +1,16 @@
 let data = require('@begin/data');
+const gameplayer = require('@architect/shared/player');
 
 async function pendingGame(storyKey) {
     let game = await data.get({ table: 'game', key: storyKey });
     return game !== null ? game : null;
 }
 
-async function startDemo(creator, story) {
-    console.log('Start demo game for', creator);
+async function startDemo(player_id, story) {
+    console.log('Start demo game for', player_id);
     await data.set({
         table: 'demo',
-        key: creator,
+        key: player_id,
         ttl: Date.now() + (60*60*24),
         story: story,
         created: Date.now(),
@@ -17,28 +18,28 @@ async function startDemo(creator, story) {
     });
 }
 
-async function setupGame(creator, storyKey) {
+async function setupGame(player_id, storyKey) {
     console.log('Set up game for', storyKey, ', awaiting additional players');
     await data.set({
         table: 'game',
         key: storyKey,
-        creator: creator,
-        players: [creator],
+        creator: player_id,
+        players: [player_id],
         story: null,
         started: false,
         created: Date.now(),
         updated: Date.now()
     });
     await data.set({
-        table: 'player',
-        key: creator,
+        table: 'gameplayer',
+        key: player_id,
         created: Date.now(),
         storyKey
     });
 }
 
-async function joinGame(player, storyKey) {
-    // If there's a pending game join it.
+async function joinGame(player_id, storyKey) {
+    // If there's a game join it.
     let game = await data.get({ table: 'game', key: storyKey });
     if (game === null) {
         console.log('No pending game for', storyKey);
@@ -46,8 +47,8 @@ async function joinGame(player, storyKey) {
     }
     else {
         // Join game.
-        console.log('Joining player', player,' to game', storyKey);
-        game.players.push(player);
+        console.log('Joining player', player_id,' to game', storyKey);
+        game.players.push(player_id);
         game.updated = Date.now();
         await data.set({
             table: 'game',
@@ -55,8 +56,8 @@ async function joinGame(player, storyKey) {
             ...game
         });
         await data.set({
-            table: 'player',
-            key: player,
+            table: 'gameplayer',
+            key: player_id,
             created: Date.now(),
             storyKey
         });
@@ -75,12 +76,16 @@ async function startGame(game) {
         key: game.key,
         ...game
     });
+    // Activate game for all players.
+    game.players.map(async function (p) {
+        gameplayer.activate(p)
+    });
 }
 
-async function getGame(player) {
-    let record = await data.get({ table: 'player', key: player });
+async function getGame(player_id) {
+    let record = await data.get({ table: 'gameplayer', key: player_id });
     if (record === null) {
-        console.log('Not a game player', player);
+        console.log('Not a game player', player_id);
         return false;
     }
     let game = await data.get({ table: 'game', key: record.storyKey });
@@ -88,21 +93,20 @@ async function getGame(player) {
         console.log('No active game for', record.storyKey);
         return false;
     }
-    console.log('Found game with players', game.players.join(" "));
     return game;
 }
 
-async function leaveGame(player) {
-    let record = await data.get({ table: 'player', key: player });
+async function leaveGame(player_id) {
+    let record = await data.get({ table: 'gameplayer', key: player_id });
     if (record === null) {
-        console.log('Not a game player', player);
+        console.log('Not a game player', player_id);
         return false;
     }
 
-    let game = await getGame(player);
+    let game = await getGame(player_id);
     game.players = game.players.filter(function (e) {
         return e != this;
-    }, player);
+    }, player_id);
     game.updated = Date.now();
 
     await data.set({
@@ -110,29 +114,33 @@ async function leaveGame(player) {
         key: game.key,
         ...game
     });
+    await gameplayer.deactivate(player_id);
     await data.destroy({
-        table: 'player',
-        key: player
+        table: 'gameplayer',
+        key: player_id
     });
+
     console.log('Game', game.key, 'now with players', game.players);
     return game;
 }
 
-async function endGame(player) {
-    let record = await data.get({ table: 'player', key: player });
+async function endGame(player_id) {
+    let record = await data.get({ table: 'gameplayer', key: player_id });
     if (record === null) {
-        console.log('Not a game player', player);
+        console.log('Not a game player', player_id);
         return false;
     }
-    let game = await getGame(player);
-    if (game.creator !== player) {
-        console.log('Not game creator', player);
+    let game = await getGame(player_id);
+    if (game.creator !== player_id) {
+        console.log('Not game creator', player_id);
         return false;
     }
 
     game.players.map(async function (p) {
+        await gameplayer.deactivate(p);
+
         await data.destroy({
-            table: 'player',
+            table: 'gameplayer',
             key: p
         });
     });
@@ -147,6 +155,10 @@ async function endGame(player) {
     return true;
 }
 
+function isCreator(game, player_id) {
+    return game.creator === player_id;
+}
+
 function getCreator(game) {
     return game.creator;
 }
@@ -159,10 +171,10 @@ function getPlayerCount(game) {
     return game.players.length;
 }
 
-function getNextPlayer(game, sender) {
+function getNextPlayer(game, player_id) {
     let eligible = game.players.filter(function (e) {
         return e != this;
-    }, sender);
+    }, player_id);
     return eligible[Math.floor(Math.random() * Math.floor(eligible.length))];
 }
 
@@ -188,6 +200,7 @@ module.exports = {
     start: startGame,
     leave: leaveGame,
     end: endGame,
+    isCreator: isCreator,
     getCreator: getCreator,
     hasStarted: hasStarted,
     getPlayerCount, getPlayerCount,
