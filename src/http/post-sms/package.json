@@ -3,6 +3,7 @@
   "dependencies": {
     "@architect/functions": "latest",
     "@begin/data": "latest",
-    "twilio": "^3.39.2"
+    "twilio": "^3.39.2",
+    "unique-string": "^2.0.0"
   }
 }
