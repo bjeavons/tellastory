@@ -1,4 +1,4 @@
-let data = require('@begin/data');
+const data = require('@begin/data');
 const gameplayer = require('@architect/shared/player');
 
 async function pendingGame(storyKey) {
