@@ -71,6 +71,11 @@ async function intro(sender, channel, command, message) {
     return response;
 }
 
+function hasSentencedEnded(story, message) {
+    const puncMarks = ['.', '?', '!'];
+    return puncMarks.includes(message.trim()[message.length - 1]);
+}
+
 async function demo(player, command, message) {
     if (command.help) {
         return "🤖 You're currently in a demo game. Text /end to end it or it'll expire in about 24 hours. FYI msg&data rates may apply.";
@@ -89,9 +94,16 @@ async function demo(player, command, message) {
         await gameplayer.deactivate(player.key);
         return "🤖 I know, I'm not a great story-teller :/ Get some friends together with a game token and start telling a story! ";
     }
-    // Update story and generate next word.
-    let story = demoStory + " " + message + " and";
+
+    let next = "and";
+    if (hasSentencedEnded(demoStory, message)) {
+        next = "Then";
+    }
+    let story = demoStory + " " + message + " " + next;
     await storytime.updateDemo(player.key, story);
+    if (hasSentencedEnded(demoStory, message)) {
+        story = next;
+    }
     return story;
 }
 
@@ -155,12 +167,12 @@ async function gameplay(player, command, message) {
          *  ? handle sentence completions - allow for multi sentence stories
          */
         let story = storytime.getStory(game);
-        if (story !== null ) {
-            story = story + " " + message;
-        }
-        else {
+        if (story === null) {
             console.log('Opening move!');
             story = message;
+        }
+        else {
+            story = story + " " + message;
         }
         await storytime.updateStory(game, story);
 
