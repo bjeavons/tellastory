@@ -30,7 +30,7 @@ async function intro(sender, channel, command, message) {
         response = "🤖 This is Storytime. If you have a game token text it to start a story or join an in-progress one. Text /intro to learn more. Text /end to leave or end a game. FYI msg&data rates may apply.";
     }
     else if (command.intro) {
-        response = "🤖 Storytime is a story-telling game over SMS. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for more info. Text /demo for a short demo game.";
+        response = "🤖 Storytime is a storytelling game over SMS. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for more info. Text /demo for a short demo game.";
     }
     else if (command.demo) {
         // Start demo game.
@@ -81,7 +81,7 @@ async function demo(player, command, message) {
         return "🤖 You're currently in a demo game. Text /end to end it or it'll expire in about 24 hours. FYI msg&data rates may apply.";
     }
     if (command.intro) {
-        return "🤖 Storytime is a story-telling game over SMS. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for more info.";
+        return "🤖 Storytime is a storytelling game over SMS. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for more info.";
     }
 
     const demoStory = await storytime.getDemoStory(player.key);
@@ -92,7 +92,7 @@ async function demo(player, command, message) {
     if (command.stop) {
         await storytime.endDemo(player.key);
         await gameplayer.deactivate(player.key);
-        return "🤖 I know, I'm not a great story-teller :/ Get some friends together with a game token and start telling a story! ";
+        return "🤖 I know, I'm not a great storyteller :/ Get some friends together with a game token and start telling a story! ";
     }
 
     let next = "and";
@@ -115,7 +115,7 @@ async function pregame(player, command, message) {
         response = "🤖 You're currently a player in a game waiting to start. Text /end to leave it now (and at any time) or hang tight for the game creator to get it started! FYI msg&data rates may apply.";
     }
     else if (command.intro && !storytime.isCreator(game, player.key)) {
-        response = "🤖 This is Storytime, a collaborative story-telling game over SMS. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /end to leave the game at any time. Text /help for help.";
+        response = "🤖 This is Storytime, a collaborative storytelling game over SMS. You and your friends tell a story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /end to leave the game at any time. Text /help for help.";
     }
     else if (command.start && storytime.isCreator(game, player.key)) {
         console.log("Starting game!");
