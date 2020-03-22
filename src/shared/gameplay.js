@@ -117,6 +117,15 @@ async function pregame(player, command, message) {
         await gameplayer.message("b: And so it begins! Get the story started, text back one or two words to begin a sentence.", receiver_id);
         response = "b: A player has been asked to start the story.";
     }
+    else if (command.stop && !storytime.isCreator(game, player.key)) {
+        response = "b: Leaving so soon? OK, no problem. Text back the game token to rejoin.";
+        await storytime.leave(player.key);
+        // @todo inform creator?
+    }
+    else if (command.stop && storytime.isCreator(game, player.key)) {
+        response = "b: Ending before it begins? OK, no problem. Text back the game token to restart.";
+        await storytime.end(player.key);
+    }
     else if (!storytime.hasStarted(game) && storytime.isCreator(game, player.key)) {
         let playerCount = storytime.getPlayerCount(game);
         if (playerCount === 1) {
