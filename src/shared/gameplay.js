@@ -35,9 +35,10 @@ async function intro(sender, channel, command, message) {
     else if (command.demo) {
         // Start demo game.
         let player_id = await gameplayer.create(sender, channel, 'demo_game'); // @todo make const
-        response = 'The';
-        await storytime.demo(player_id, response);
-        await gameplayer.message("b: OK, let's tell a short story, you and I! I'll text the start of a story and you text back to continue. Any ending punctuation will complete our story or you can choose to end it with /end. Get ready!", player_id);
+        let story = 'The';
+        await storytime.demo(player_id, story);
+        await gameplayer.message(story, player_id);
+        response = "b: OK, let's tell a short story, you and I! I'll text the start of a story and you text back to continue. Any ending punctuation will complete our story or you can choose to end it with /end. Get ready!";
     }
     else if (isToken) {
         let game = await storytime.pending(message.toLowerCase());
