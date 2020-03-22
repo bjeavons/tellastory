@@ -29,7 +29,7 @@ async function sendMessage(message, to) {
             const relayedMessage = await client.messages.create({
                 body: message,
                 from: process.env.TWILIO_SENDER,
-                to: to
+                to: "+" + to
             });
             console.log('Relayed message SID', relayedMessage.sid);
         }
@@ -38,7 +38,7 @@ async function sendMessage(message, to) {
         }
     }
     else {
-        console.log("Would relay:", message);
+        console.log("Would relay: \"" + message + "\" to", to);
     }
 }
 
