@@ -23,14 +23,15 @@ async function gamerouter(sender, channel, command, message) {
 }
 
 async function intro(sender, channel, command, message) {
-    let response = '';
     const isToken = tokens.includes(message.toLowerCase());
 
-    if (command.help) {
-        response = "b: This is Storytime. Get a game token from Ben and text it to start a short story or join an in-progress one. Text /end to leave or end a game. FYI msg&data rates may apply.";
+    let response = "b: This is Storytime, a collaborative short storytelling game over SMS. Text /intro (with slash) to learn more or text a game token to start or join a game. Text /help for help.";
+
+    if (command.intro) {
+        response = "b: You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for help at any time or for a sample story between you and me text /demo";
     }
-    else if (command.intro) {
-        response = "b: Storytime is a storytelling game over SMS. You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for help at any time or /demo for a demo game.";
+    else if (command.help) {
+        response = "b: This is Storytime. Text a game token to start a short story or join an in-progress one (while in private beta ask Ben for a token). Text /end to leave or end a game. FYI msg&data rates may apply.";
     }
     else if (command.demo) {
         // Start demo game.
@@ -63,10 +64,6 @@ async function intro(sender, channel, command, message) {
             response = "b: Welcome to Storytime! You've joined an ongoing game. Text /intro (with slash) to learn what this is about or text /help for help.";
             await gameplayer.message(relayedMessage, storytime.getCreator(game));
         }
-    }
-    else {
-        console.log("No story in progress");
-        response = "b: This is Storytime! If you have a game token text it to start a short story or join an in-progress one. Text /intro (with slash) to learn more.";
     }
 
     return response;

@@ -9,7 +9,7 @@ class Command {
         this.demo = false;
         this.admin = false;
         this.message = '';
-        if (!message[0] === '/') {
+        if (message[0] !== '/') {
             return;
         }
         this.isCommand = true;
