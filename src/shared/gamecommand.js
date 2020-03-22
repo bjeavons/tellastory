@@ -1,6 +1,7 @@
 class Command {
 
     constructor(message) {
+        this.isCommand = false;
         this.help = false;
         this.start = false;
         this.stop = false;
@@ -11,6 +12,7 @@ class Command {
         if (!message[0] === '/') {
             return;
         }
+        this.isCommand = true;
         this.message = message.toLowerCase().trim().slice(1);
         switch (this.message.split(' ')[0]) {
             case 'help':
