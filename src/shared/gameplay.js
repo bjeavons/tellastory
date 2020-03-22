@@ -30,7 +30,7 @@ async function intro(sender, channel, command, message) {
         response = "b: This is Storytime. Get a game token from Ben and text it to start a short story or join an in-progress one. Text /end to leave or end a game. FYI msg&data rates may apply.";
     }
     else if (command.intro) {
-        response = "b: Storytime is a storytelling game over SMS. You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Note, Text /help for help at any time or /demo for a demo game.";
+        response = "b: Storytime is a storytelling game over SMS. You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for help at any time or /demo for a demo game.";
     }
     else if (command.demo) {
         // Start demo game.
