@@ -1,6 +1,7 @@
 const tokens = require('@architect/shared/gametoken');
 const storytime = require('@architect/shared/story');
 const gameplayer = require('@architect/shared/player');
+const storyteller = require('@architect/shared/storyteller');
 
 async function gamerouter(sender, channel, command, message) {
     var response = {};
@@ -83,6 +84,7 @@ async function demo(player, command, message) {
     if (!command.stop && command.isCommand) {
         return "b: You're currently in a demo game. Text /end to end it or it'll expire in about 24 hours. FYI msg&data rates may apply.";
     }
+    message = message.trim().toLowerCase();
 
     const demoStory = await storytime.getDemoStory(player.key);
     if (!demoStory) {
@@ -101,7 +103,15 @@ async function demo(player, command, message) {
         await gameplayer.deactivate(player.key);
         return "b: OK, the end. That was fun! Get some friends together with a game token and start telling a short story. Text /token to learn more.";
     }
-    let story = demoStory + " " + message + " and";
+
+    let next = 'and';
+    try {
+        next = await storyteller.nextWord(message);
+    }
+    catch (err) {
+        console.log(err);
+    }
+    const story = demoStory + " " + message + " " + next;
     await storytime.updateDemo(player.key, story);
     return story;
 }

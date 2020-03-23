@@ -23,6 +23,7 @@ exports.handler = async function http(req) {
   }
   // @todo play game
   console.log('Gameplay from web got:', body.text);
+
   return {
     statusCode: 200,
     body: ''

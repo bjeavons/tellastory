@@ -3,6 +3,8 @@
   "dependencies": {
     "@architect/functions": "latest",
     "@begin/data": "latest",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.8",
     "twilio": "^3.39.2",
     "unique-string": "^2.0.0"
   }
