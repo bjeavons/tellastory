@@ -1,4 +1,4 @@
-let data = require('@begin/data');
+const data = require('@begin/data');
 const auth = require('@architect/shared/auth');
 
 exports.handler = async function http(req) {
@@ -12,21 +12,20 @@ exports.handler = async function http(req) {
     };
   }
 
-  let demos = await data.get({
-    table: 'demo'
-  });
-  let games = await data.get({
-    table: 'game'
-  });
-  let players = await data.get({
-    table: 'player'
-  });
-
-  let body = {
-    demos,
-    games,
-    players
-  };
+  const tables = [
+    'demo',
+    'game',
+    'gameplayer',
+    'archive_game',
+    'player',
+    'player_sms'
+  ];
+  const getData = async () => {
+    return Promise.all(tables.map(async function (t) {
+      return await data.get({table: t});
+    }));
+  }
+  const body = await getData();
 
   return {
     headers: {

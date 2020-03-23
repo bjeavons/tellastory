@@ -172,10 +172,22 @@ async function endGame(player_id) {
         table: 'game',
         key: game.key
     });
-    /**
-     * @todo archive the story?
-     */
-    console.log('Game', game.key, 'and all players removed');
+    // Archive only if game started.
+    if (game.started) {
+        let archive = await data.set({
+            table: 'archive_game',
+            storyKey: game.key,
+            creator: player_id,
+            players: game.players,
+            story: game.story,
+            created: game.created,
+            ended: Date.now()
+        });
+        console.log('Game', game.key, 'and all players removed. Archived to', archive.key);
+    }
+    else {
+        console.log('Game', game.key, "and all players removed. No archive since game didn't start.");
+    }
     return true;
 }
 
