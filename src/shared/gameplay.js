@@ -7,7 +7,7 @@ async function gamerouter(sender, channel, command, message) {
     var response = {};
 
     let player = await gameplayer.get(sender, channel);
-    if (!player) {
+    if (!player || gameplayer.isInactive(player)) {
         response.body = await intro(sender, channel, command, message);
     }
     else if (gameplayer.inDemoGame(player)) {

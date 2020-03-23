@@ -24,6 +24,10 @@ function inActiveGame(player) {
     return player.state === 'active_game';
 }
 
+function isInactive(player) {
+    return player && player.state === 'inactive';
+}
+
 async function create(address, channel, state) {
     // @todo support web channel
     let table = 'player_sms';
@@ -60,14 +64,11 @@ async function deactivate(player_id) {
     if (!player) {
         return;
     }
-    // @todo keep record of past games?
-    await data.destroy({
+    player.state = 'inactive';
+    await data.set({
         table: 'player',
-        key: player_id
-    });
-    await data.destroy({
-        table: 'player_sms',
-        key: player.address
+        key: player.key,
+        ...player
     });
 }
 
@@ -77,6 +78,9 @@ async function message(content, player_id) {
     if (record === null) {
         throw new Error('No player found for ID', player_id);
     }
+    if (record.state === 'inactive') {
+        throw new Error('Not messaging an inactive player');
+    }
     await twilio.sendMessage(content, record.address);
 }
 
@@ -85,6 +89,7 @@ module.exports = {
     inPendingGame: inPendingGame,
     inDemoGame: inDemoGame,
     inActiveGame: inActiveGame,
+    isInactive: isInactive,
     create: create,
     activate: activate,
     deactivate: deactivate,
