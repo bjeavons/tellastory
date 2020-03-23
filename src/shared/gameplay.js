@@ -17,7 +17,10 @@ async function gamerouter(sender, channel, command, message) {
         response.body = await pregame(player, command, message);
     }
     else if (gameplayer.inActiveGame(player)) {
-        response.body = await gameplay(player, command, message);
+        let body = await gameplay(player, command, message);
+        if (body !== '') {
+            response.body = body;
+        }
     }
 
     return response;
