@@ -31,14 +31,20 @@ async function intro(sender, channel, command, message) {
         response = "b: You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for help at any time or for a sample story between you and me text /demo";
     }
     else if (command.help) {
-        response = "b: This is Storytime. Text a game token to start a short story or join an in-progress one (while in private beta ask Ben for a token). Text /end to leave or end a game. FYI msg&data rates may apply.";
+        response = "b: This is Storytime. Text a game token to start a short story or join an in-progress one. Text /token to learn about game tokens. Text /end to leave or end a game. FYI msg&data rates may apply.";
+    }
+    else if (command.token) {
+        response = "b: Game tokens are single words that group together people in storytelling. The first person to text a game token unlocks the ability to start and stop the story. Then anyone else who texts that same token joins that game. Try it now, text back the word 'begin' (without quotes).";
+    }
+    else if (message.trim().toLowerCase() === 'begin') {
+        response = "b: Well done! If that were a real game token I'd have set you up with the ability to start and stop a storytelling session that others could join. While Storytime is in development, Ben has control of all the game tokens so contact him for one!";
     }
     else if (command.demo) {
         // Start demo game.
         let player_id = await gameplayer.create(sender, channel, 'demo_game'); // @todo make const
         let story = 'The';
         await storytime.demo(player_id, story);
-        response = "b: OK, let's tell a short story, you and I! I'll text the start of a story and you text back to continue. Any ending punctuation will complete our story or you can choose to end it with /end. ... " + story;
+        response = "b: OK, fair warning, I'm not a great storyteller, but let's you and I try it! I'll text the start of a story and you text back to continue. Ending punctuation will complete our story or you can end it by texting just /end. Here goes ... " + story;
     }
     else if (isToken) {
         let game = await storytime.pending(message.toLowerCase());
@@ -81,19 +87,19 @@ async function demo(player, command, message) {
     const demoStory = await storytime.getDemoStory(player.key);
     if (!demoStory) {
         await gameplayer.deactivate(player.key);
-        return "b: Get a full game going!";
+        return "b: Get some friends together with a game token and start telling a short story! Text /token to learn more";
     }
     if (command.stop) {
         await storytime.endDemo(player.key);
         await gameplayer.deactivate(player.key);
-        return "b: I know, I'm not a great storyteller :/ Get some friends together with a game token and start telling a short story!";
+        return "b: I know, I'm not a great storyteller :/ Get some friends together with a game token and start telling a short story! Text /token to learn more.";
     }
 
     if (hasSentencedEnded(demoStory, message)) {
         // End the demo on sentence completion.
         await storytime.endDemo(player.key);
         await gameplayer.deactivate(player.key);
-        return "b: OK, the end. That was fun! Get some friends together with a game token and start telling a short story.";
+        return "b: OK, the end. That was fun! Get some friends together with a game token and start telling a short story. Text /token to learn more.";
     }
     let story = demoStory + " " + message + " and";
     await storytime.updateDemo(player.key, story);
