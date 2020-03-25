@@ -133,9 +133,15 @@ async function pregame(player, command, message) {
         response = "When you start the story I'll ask you to reply with one or two words that I'll send to another player. What they respond with is added to your words and sent together to the next player, and so the story continues! For now, short stories are best :) End the game at any time by texting just /end.";
     }
     else if (command.start && storytime.isCreator(game, player.key)) {
-        console.log("Starting game!");
-        await storytime.start(game);
-        response = "b: And so it begins! Get the story started, text back one or two words to begin a sentence that I'll send to the next player. Text just /end to end the game at any time.";
+        let playerCount = storytime.getPlayerCount(game);
+        if (playerCount > 1) {
+            console.log("Starting game!");
+            await storytime.start(game);
+            response = "b: And so it begins! Get the story started, text back one or two words to begin a sentence that I'll send to the next player. Text just /end to end the game at any time.";
+        }
+        else {
+            response = "b: It's just you in here! Get some people to join by having them text the token to this number.";
+        }
     }
     else if (command.stop && !storytime.isCreator(game, player.key)) {
         response = "b: Leaving so soon? OK, no problem. Text back the game token to rejoin.";
