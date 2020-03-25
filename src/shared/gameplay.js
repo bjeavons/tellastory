@@ -29,19 +29,19 @@ async function gamerouter(sender, channel, command, message) {
 async function intro(sender, channel, command, message) {
     const isToken = tokens.includes(message.toLowerCase());
 
-    let response = "b: This is Storytime, a collaborative short storytelling game over SMS. Text /intro (with slash) to learn more or text a game token to start or join a game. Text /help for help.";
+    let response = "b: This is Storytime, a collaborative short storytelling game over SMS. Text /intro (with slash) to learn more. Text a game token if have one or /token to learn about them.";
 
     if (command.intro) {
         response = "b: You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for help at any time or for a sample story between you and me text /demo";
     }
     else if (command.help) {
-        response = "b: This is Storytime. Text a game token to start a short story or join an in-progress one. Text /token to learn about game tokens. Text /end to leave or end a game. FYI msg&data rates may apply.";
+        response = "b: This is Storytime. Text a game token to start a short story or join an in-progress one. Text /token to learn about game tokens. Text /end to leave or end a game. Text /intro to learn about Storytime. FYI msg&data rates may apply.";
     }
     else if (command.token) {
-        response = "b: Game tokens are single words that group together people in storytelling. The first person to text a game token unlocks the ability to start and stop the story. Then anyone else who texts that same token joins that game. Try it now, text back the word 'begin' (without quotes).";
+        response = "b: Game tokens are single words that group together people in storytelling. The first person to text a game token unlocks the ability to start and stop the story. Then anyone else who texts that same token joins the game. Try it now, text back the word 'begin' (without quotes).";
     }
     else if (message.trim().toLowerCase() === 'begin') {
-        response = "b: Well done! If that were a real game token I'd have set you up with the ability to start and stop a storytelling session that others could join. While Storytime is in development, Ben has control of all the game tokens so contact him for one!";
+        response = "b: Well done! If that were a real game token I'd have set you up with the ability to start and stop a storytelling session that others could join. While Storytime is in development, Ben has control of all the game tokens so contact him for one! Text /demo for a demo story with me.";
     }
     else if (command.demo) {
         // Start demo game.
@@ -63,14 +63,14 @@ async function intro(sender, channel, command, message) {
             let player_id = await gameplayer.create(sender, channel, 'pending_game'); // @todo make const
             game = await storytime.join(player_id, message.toLowerCase());
             var relayedMessage = "b: Someone joined the game! Now at " + storytime.getPlayerCount(game) + " total players. Start the game at any time by texting /start or text /help for help.";
-            response = "b: Welcome to Storytime! You've joined a pending game. The game creator will start it once they're ready. Text /intro (with slash) to learn what will happen next or text /help for help.";
+            response = "b: Welcome to Storytime! You've joined a pending game. The game creator will start it once they're ready. Text /intro (with slash) to learn what will happen next or text /help for help at any time.";
             await gameplayer.message(relayedMessage, storytime.getCreator(game));
         }
         else {
             let player_id = await gameplayer.create(sender, channel, 'active_game'); // @todo make const
             game = await storytime.join(player_id, message.toLowerCase());
             var relayedMessage = "b: Someone joined the game! Now at " + storytime.getPlayerCount(game) + " total players.";
-            response = "b: Welcome to Storytime! You've joined an ongoing game. Text /intro (with slash) to learn what this is about or text /help for help.";
+            response = "b: Welcome to Storytime! You've joined an ongoing game. Text /intro (with slash) to learn what this is about or text /help for help at any time.";
             await gameplayer.message(relayedMessage, storytime.getCreator(game));
         }
     }
@@ -132,9 +132,7 @@ async function pregame(player, command, message) {
     else if (command.start && storytime.isCreator(game, player.key)) {
         console.log("Starting game!");
         await storytime.start(game);
-        let receiver_id = storytime.getNextPlayer(game, player.key);
-        await gameplayer.message("b: And so it begins! Get the story started, text back one or two words to begin a sentence.", receiver_id);
-        response = "b: A player has been asked to start the story.";
+        response = "b: And so it begins! Get the story started, text back one or two words to begin a sentence that I'll send to the next player. Text just /end to end the game at any time.";
     }
     else if (command.stop && !storytime.isCreator(game, player.key)) {
         response = "b: Leaving so soon? OK, no problem. Text back the game token to rejoin.";
@@ -153,7 +151,7 @@ async function pregame(player, command, message) {
         else {
             response = "b: The game is ready with " + playerCount + " players, get some more people to join or start the game by texting /start!";
         }
-        response += " Text /end to end the game at any time. FYI msg&data rates may apply.";
+        response += " FYI msg&data rates may apply.";
     }
     else if (!storytime.hasStarted(game)) {
         console.log("Message ignored, game hasn't started.");
