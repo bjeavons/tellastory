@@ -8,6 +8,7 @@ class Command {
         this.intro = false;
         this.demo = false;
         this.token = false;
+        this.invite = false;
         this.admin = false;
         this.message = '';
         if (message[0] !== '/') {
@@ -36,6 +37,10 @@ class Command {
 
             case 'token':
                 this.token = true;
+                break;
+
+            case 'invite':
+                this.invite = true;
                 break;
 
             case 'demo':

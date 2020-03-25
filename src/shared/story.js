@@ -218,6 +218,10 @@ function getStory(game) {
     return game.story;
 }
 
+function getGameToken(game) {
+    return game.key;
+}
+
 async function updateStory(game, story) {
     game.story = story;
     game.updated = Date.now();
@@ -246,5 +250,6 @@ module.exports = {
     getPlayerCount, getPlayerCount,
     getNextPlayer: getNextPlayer,
     getStory: getStory,
+    getGameToken: getGameToken,
     updateStory: updateStory
 }

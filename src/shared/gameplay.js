@@ -130,7 +130,7 @@ async function pregame(player, command, message) {
         response = "b: This is Storytime, a collaborative storytelling game over SMS. You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /stop to leave the game at any time. Text /help for help.";
     }
     else if (command.intro && storytime.isCreator(game, player.key)) {
-        response = "When you start the story I'll ask you to reply with one or two words that I'll send to another player. What they respond with is added to your words and sent together to the next player, and so the story continues! For now, short stories are best :) End the game at any time by texting just /end.";
+        response = "When you start the story I'll ask you to reply with one or two words that I'll send to another player. What they respond with is added to your words and sent together to the next player, and so the story continues! For now, short stories are best :) End the game at any time by texting just /end. Text /invite for a message you can copy and share with friends.";
     }
     else if (command.start && storytime.isCreator(game, player.key)) {
         let playerCount = storytime.getPlayerCount(game);
@@ -140,7 +140,7 @@ async function pregame(player, command, message) {
             response = "b: And so it begins! Get the story started, text back one or two words to begin a sentence that I'll send to the next player. Text just /end to end the game at any time.";
         }
         else {
-            response = "b: It's just you in here! Get some people to join by having them text the token to this number.";
+            response = "b: It's just you in here! Get some people to join by having them text the token to this number. Text /invite for a message you can copy and share with friends.";
         }
     }
     else if (command.stop && !storytime.isCreator(game, player.key)) {
@@ -151,6 +151,11 @@ async function pregame(player, command, message) {
     else if (command.stop && storytime.isCreator(game, player.key)) {
         response = "b: Ending before it begins? OK, no problem. Text back the game token to restart.";
         await storytime.end(player.key);
+    }
+    else if (command.invite) {
+        const token = storytime.getGameToken(game);
+        const number = process.env.TWILIO_SENDER.replace(/[^\d.-]/g, "").replace(/^1/, "");
+        response = "b: Copy and text this to your friends: Hey, let's play this fun game where we improv a short story together over text messages. Text " + token + " to " + number;
     }
     else if (storytime.isCreator(game, player.key)) {
         let playerCount = storytime.getPlayerCount(game);
