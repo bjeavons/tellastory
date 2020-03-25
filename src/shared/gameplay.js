@@ -29,7 +29,7 @@ async function gamerouter(sender, channel, command, message) {
 async function intro(sender, channel, command, message) {
     const isToken = tokens.includes(message.toLowerCase());
 
-    let response = "b: This is Storytime, a collaborative short storytelling game over SMS. Text /intro (with slash) to learn more. Text a game token if have one or /token to learn about them.";
+    let response = "b: This is Storytime, a collaborative short storytelling game over SMS. Text /intro (with slash) to learn more. Text a game token if you have one or /token to learn about them.";
 
     if (command.intro) {
         response = "b: You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for help at any time or for a sample story between you and me text /demo";

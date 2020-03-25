@@ -10,6 +10,7 @@ async function nextWord(word) {
     .catch(function (err) {
         throw new Error('Datamuse request error:', err);
     });
+    // @todo Filter out punctuation and numbers.
     result = result[Math.floor(Math.random() * Math.floor(result.length))];
     return result.word;
 }
