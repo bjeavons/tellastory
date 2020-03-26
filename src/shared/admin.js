@@ -21,9 +21,31 @@ async function complete_reset_clear_all_data() {
     });
 }
 
+async function stats() {
+    const games = await data.get({ table: 'game' });
+    let active_games = 0;
+    let pending_games = 0;
+    games.forEach( function(g) {
+        if (g.table === 'game' && g.started) {
+            active_games += 1;
+        }
+        else if (g.table === 'game') {
+            pending_games += 1;
+        }
+    });
+    let players = await data.get({ table: 'player' });
+    players = players.filter(function(p) {
+        return p.table === 'player';
+    });
+    return "Games - active:" + active_games + ", pending:" + pending_games + " Players - total:" + players.length;
+}
+
 async function admin(sender, message) {
-    if (message === 'GETTOKEN') {
+    if (message === 'GETJWT') {
         return auth.getToken({sender: sender});
+    }
+    else if (message === 'STATS') {
+        return await stats();
     }
     else if (message === 'HARDRESETPLS') {
         await complete_reset_clear_all_data();
