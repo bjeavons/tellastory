@@ -36,13 +36,13 @@ async function create(address, channel, state) {
         table: table,
         key: address,
         player_id: player_id,
-        created: Date.now()
+        created: Date.now(),
+        updated: Date.now()
     });
     await data.set({
         table: 'player',
         key: player_id,
         address: address,
-        created: Date.now(),
         channel: 'SMS', // @todo support other channels
         state: state
     });
@@ -52,6 +52,7 @@ async function create(address, channel, state) {
 async function activate(player_id) {
     let player = await data.get({ table: 'player', key: player_id });
     player.state = 'active_game';
+    player.updated = Date.now();
     await data.set({
         table: 'player',
         key: player.key,
@@ -65,6 +66,21 @@ async function deactivate(player_id) {
         return;
     }
     player.state = 'inactive';
+    player.updated = Date.now();
+    await data.set({
+        table: 'player',
+        key: player.key,
+        ...player
+    });
+}
+
+async function setState(player_id, state) {
+    let player = await data.get({ table: 'player', key: player_id });
+    if (!player) {
+        return;
+    }
+    player.state = state;
+    player.updated = Date.now();
     await data.set({
         table: 'player',
         key: player.key,
@@ -93,5 +109,6 @@ module.exports = {
     create: create,
     activate: activate,
     deactivate: deactivate,
+    setState: setState,
     message: message
 }

@@ -7,7 +7,7 @@ async function gamerouter(sender, channel, command, message) {
     var response = {};
 
     let player = await gameplayer.get(sender, channel);
-    if (!player || gameplayer.isInactive(player)) {
+    if (!player) {
         response.body = await intro(sender, channel, command, message);
     }
     else if (gameplayer.inDemoGame(player)) {
@@ -21,6 +21,9 @@ async function gamerouter(sender, channel, command, message) {
         if (body !== '') {
             response.body = body;
         }
+    }
+    else if (gameplayer.isInactive(player)) {
+        response.body = await inactive(player, command, message);
     }
 
     return response;
@@ -79,6 +82,28 @@ async function intro(sender, channel, command, message) {
         }
     }
 
+    return response;
+}
+
+async function inactive(player, command, message) {
+    let response = "b: The game has ended. Text a game token to start a game or join an in-progress one. Text /token for info on tokens or text /help for more commands.";
+
+    if (command.token) {
+        response = "b: Game tokens are single words that group together people in storytelling. The first person to text a game token unlocks the ability to start and stop the story. Then anyone else who texts that same token joins the game.";
+    }
+    else if (command.help) {
+        response = "b: Text a game token to start a game or join one. Text /token to learn about game tokens. Text /end to leave or end a game. Text /intro to learn how this works and /demo to play a sample game with me. FYI msg&data rates may apply.";
+    }
+    else if (command.intro) {
+        response = "b: You and your friends tell a short story, one or two words at a time, by text messages to this number. When someone texts the next part of the story the whole story gets sent to another player to add on to! Text /help for help at any time or for a sample story between you and me text /demo";
+    }
+    else if (command.demo) {
+        // Start demo game.
+        await gameplayer.setState(player.key, 'demo_game'); // @todo make const
+        let story = 'The';
+        await storytime.demo(player.key, story);
+        response = "b: OK, let's you and I tell a story! I'll start a sentence and you reply with one or two words to continue it. Ending punctuation will complete our story or you can end it by texting just /end. Here goes ... " + story;
+    }
     return response;
 }
 
