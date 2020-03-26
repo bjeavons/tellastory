@@ -40,6 +40,10 @@ async function intro(sender, channel, command, message) {
     else if (command.token) {
         response = "b: Game tokens are single words that group together people in storytelling. The first person to text a game token unlocks the ability to start and stop the story. Then anyone else who texts that same token joins the game. Try it now, text back the word 'begin' (without quotes).";
     }
+    else if (command.invite) {
+        const number = process.env.TWILIO_SENDER.replace(/[^\d.-]/g, "").replace(/^1/, "");
+        response = "b: Copy and text this to your friends: Hey, let's play this fun game where we improv a short story together over text messages. Text hi to " + number + " to learn about it.";
+    }
     else if (message.trim().toLowerCase() === 'begin') {
         response = "b: Well done! If that were a real game token I'd have set you up with the ability to start and stop a storytelling session that others could join. While Storytime is in development, Ben has control of all the game tokens so contact him for one! Text /demo for a demo story with me.";
     }
@@ -192,6 +196,11 @@ async function gameplay(player, command, message) {
     }
     else if (command.help) { 
         response = "b: Game control commands start with slash (/). Text /end to leave an in progress game or to end one you created. Text /intro to learn how this works. FYI msg&data rates may apply while playing.";
+    }
+    else if (command.invite) {
+        const token = storytime.getGameToken(game);
+        const number = process.env.TWILIO_SENDER.replace(/[^\d.-]/g, "").replace(/^1/, "");
+        response = "b: Copy and text this to your friends: Hey, let's play this fun game where we improv a short story together over text messages. Text " + token + " to " + number;
     }
     else {
         /**
